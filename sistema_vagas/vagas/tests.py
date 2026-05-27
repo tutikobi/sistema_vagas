@@ -3,7 +3,7 @@ from .models import CustomUser, CandidateProfile, Job, Application
 
 class MatchScoreTestCase(TestCase):
     def setUp(self):
-        # Setup: Cria os atores do teste
+        
         self.company = CustomUser.objects.create_user(email='empresa@senior.com', password='123', is_company=True)
         self.candidate = CustomUser.objects.create_user(email='candidato@dev.com', password='123')
         
@@ -19,8 +19,8 @@ class MatchScoreTestCase(TestCase):
         job = Job.objects.create(
             company=self.company,
             title="Dev Django",
-            salary_range="2000_3000", # Salário (2500) atende (+1 ponto)
-            min_education="superior", # Escolaridade atende (+1 ponto)
+            salary_range="2000_3000", 
+            min_education="superior", 
             requirements="Python"
         )
         application = Application.objects.create(job=job, candidate=self.profile)
@@ -31,8 +31,8 @@ class MatchScoreTestCase(TestCase):
         job = Job.objects.create(
             company=self.company,
             title="Tech Lead",
-            salary_range="2000_3000", # Salário atende (+1 ponto)
-            min_education="doutorado", # Escolaridade é inferior (+0 pontos)
+            salary_range="2000_3000", 
+            min_education="doutorado", 
             requirements="Liderança"
         )
         application = Application.objects.create(job=job, candidate=self.profile)

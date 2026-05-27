@@ -7,10 +7,10 @@ admin.site.index_title = "Dashboard de Gestão"
 
 class ApplicationInline(admin.TabularInline):
     model = Application
-    extra = 0  # Evita mostrar linhas em branco extras
+    extra = 0  
     readonly_fields = ('get_candidate_email', 'get_score', 'created_at')
     fields = ('get_candidate_email', 'get_score', 'created_at')
-    can_delete = False  # Impede deletar a aplicação sem querer por aqui
+    can_delete = False  
     
     @admin.display(description='Candidato (E-mail)')
     def get_candidate_email(self, obj):
@@ -21,7 +21,7 @@ class ApplicationInline(admin.TabularInline):
         return obj.score
         
     def has_add_permission(self, request, obj):
-        # Apenas para leitura, a empresa não deve "inventar" candidatos na vaga
+        
         return False
 
 @admin.register(CustomUser)
@@ -42,7 +42,7 @@ class JobAdmin(admin.ModelAdmin):
     list_display = ('title', 'company', 'salary_range', 'min_education', 'created_at')
     list_filter = ('min_education', 'salary_range', 'created_at')
     search_fields = ('title', 'company__email', 'requirements')
-    inlines = [ApplicationInline]  # <-- É AQUI QUE A MÁGICA ACONTECE!
+    inlines = [ApplicationInline]  
     
 @admin.register(Application)
 class ApplicationAdmin(admin.ModelAdmin):
