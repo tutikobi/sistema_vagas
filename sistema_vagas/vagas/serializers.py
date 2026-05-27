@@ -8,27 +8,30 @@ class UserSerializer(serializers.ModelSerializer):
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
-        user = CustomUser.objects.create_user(
-            email=validated_data['email'],
-            password=validated_data['password'],
-            is_company=validated_data.get('is_company', False)
-        )
-        return user
+        return CustomUser.objects.create_user(**validated_data)
 
 class CandidateProfileSerializer(serializers.ModelSerializer):
+    user_email = serializers.EmailField(source='user.email', read_only=True)
+    
     class Meta:
         model = CandidateProfile
         fields = '__all__'
 
+class ApplicationSerializer(serializers.ModelSerializer):
+    score = serializers.ReadOnlyField()
+    candidate_details = CandidateProfileSerializer(source='candidate', read_only=True)
+
+    class Meta:
+        model = Application
+        fields = '__all__'
+
 class JobSerializer(serializers.ModelSerializer):
+    candidates_count = serializers.SerializerMethodField()
+    applications = ApplicationSerializer(many=True, read_only=True)
+
     class Meta:
         model = Job
         fields = '__all__'
 
-class ApplicationSerializer(serializers.ModelSerializer):
-    # O React vai precisar ler a pontuação (score) do candidato!
-    score = serializers.ReadOnlyField() 
-    
-    class Meta:
-        model = Application
-        fields = '__all__'
+    def get_candidates_count(self, obj):
+        return obj.applications.count()

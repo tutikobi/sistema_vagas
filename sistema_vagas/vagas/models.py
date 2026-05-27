@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
+from decimal import Decimal
 
-# Mapeamento para o sistema de pontos (Bônus)
 EDUCATION_LEVELS = {
     'fundamental': 1, 'medio': 2, 'tecnologo': 3,
     'superior': 4, 'pos_mba_mestrado': 5, 'doutorado': 6
@@ -9,20 +9,16 @@ EDUCATION_LEVELS = {
 
 SALARY_RANGES = {
     'ate_1000': (0, 1000), '1000_2000': (1001, 2000),
-    '2000_3000': (2001, 3000), 'acima_3000': (3001, float('inf'))
+    '2000_3000': (2001, 3000), 'acima_3000': (3001, Decimal('inf'))
 }
 
 class CustomUserManager(BaseUserManager):
-    """
-    Gerenciador customizado para ensinar o Django a criar usuários e 
-    superusuários usando o email como identificador único, sem o username.
-    """
     def create_user(self, email, password=None, **extra_fields):
         if not email:
-            raise ValueError('O campo Email é obrigatório')
+            raise ValueError('O e-mail é obrigatório.')
         email = self.normalize_email(email)
         user = self.model(email=email, **extra_fields)
-        user.set_password(password) # Criptografa a senha
+        user.set_password(password)
         user.save(using=self._db)
         return user
 
@@ -39,7 +35,6 @@ class CustomUser(AbstractUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
 
-    # Substitui o gerenciador padrão pelo nosso novo
     objects = CustomUserManager() 
 
 class CandidateProfile(models.Model):
@@ -63,19 +58,13 @@ class Application(models.Model):
 
     @property
     def score(self):
-        """Lógica do Bônus: Calcula aderência do candidato à vaga."""
         points = 0
         
-        # Regra 1: Faixa Salarial
         job_min, job_max = SALARY_RANGES[self.job.salary_range]
         if job_min <= self.candidate.desired_salary <= job_max:
             points += 1
             
-        # Regra 2: Escolaridade
-        candidate_ed_level = EDUCATION_LEVELS[self.candidate.education]
-        job_ed_level = EDUCATION_LEVELS[self.job.min_education]
-        
-        if candidate_ed_level >= job_ed_level:
+        if EDUCATION_LEVELS[self.candidate.education] >= EDUCATION_LEVELS[self.job.min_education]:
             points += 1
             
         return points
