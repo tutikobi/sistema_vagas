@@ -11,11 +11,13 @@ class UserSerializer(serializers.ModelSerializer):
         return CustomUser.objects.create_user(**validated_data)
 
 class CandidateProfileSerializer(serializers.ModelSerializer):
-    user_email = serializers.EmailField(source='user.email', read_only=True)
+    email = serializers.EmailField(source='user.email', read_only=True)
     
     class Meta:
         model = CandidateProfile
-        fields = '__all__'
+        fields = ['id', 'user', 'email', 'desired_salary', 'experience', 'education']
+    
+   
 
 class ApplicationSerializer(serializers.ModelSerializer):
     score = serializers.ReadOnlyField()
@@ -23,8 +25,8 @@ class ApplicationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Application
-        fields = '__all__'
-
+        fields = ['id', 'job', 'candidate', 'candidate_details', 'created_at', 'score']
+        
 class JobSerializer(serializers.ModelSerializer):
     candidates_count = serializers.SerializerMethodField()
     applications = ApplicationSerializer(many=True, read_only=True)
