@@ -24,31 +24,31 @@ Certifique-se de ter instalado em sua máquina:
 - **Python 3.10+**
 - **Node.js 18+**
 
-### 1. Rodando a API (Backend)
-Abra o terminal na pasta raiz e execute:
+### 1. Servidor de API (Backend)
+No terminal do projeto, navegue até a pasta correspondente:
 ```bash
-cd backend
+cd sistema_vagas
+
 # Crie e ative o ambiente virtual
 python -m venv venv
-venv\Scripts\activate      # No Windows
-# source venv/bin/activate # No Mac/Linux
+venv\Scripts\activate      # Windows
+# source venv/bin/activate # Mac/Linux
 
-# Instale as dependências
+# Instale os pacotes necessários
 pip install -r requirements.txt
 
-# Execute as migrações estruturais do banco
+# Aplique o esquema relacional do banco de dados
 python manage.py makemigrations vagas
 python manage.py migrate
 
-# POPULE O BANCO DE DADOS (Comando Customizado)
-# Este comando gera 30 candidatos, 15 vagas, dezenas de aplicações e usuários fixos
+# ⚡ Semeamento Dinâmico de Dados (Uso do Faker para Dashboard)
 python manage.py seed
 
-# Inicie o servidor
+# Inicialize o serviço backend
 python manage.py runserver
 
 # Acessos Fixos do Sistema:
-Para visualizar o Painel Administrativo Moderno acesse http://localhost:8000/admin/:
+Para visualizar o Painel Administrativo Moderno acesse http://localhost:8000/admin/
 Superusuário: admin@senior.com.br | Senha: admin
 
 
@@ -65,7 +65,7 @@ npm install
 # Inicie o servidor de desenvolvimento
 npm run dev
 
-Acesse o Dashboard e o Gráfico de Relatórios em: http://localhost:5173/
+Acesse a pagina de login e cadastro de usuario, onde o usuario consegue se candidatar a vaga : http://localhost:5173/
 
 
 
