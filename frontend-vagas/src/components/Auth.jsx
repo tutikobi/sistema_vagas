@@ -3,13 +3,18 @@ import axios from 'axios';
 
 export default function Auth({ onAuthSuccess }) {
     const [isLogin, setIsLogin] = useState(true);
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
     const [isCompany, setIsCompany] = useState(false);
     
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [name, setName] = useState('');
+    const [cpf, setCpf] = useState('');
+    
+    // Campos do Candidato
     const [desiredSalary, setDesiredSalary] = useState('');
     const [experience, setExperience] = useState('');
     const [education, setEducation] = useState('superior');
+    
     const [message, setMessage] = useState('');
 
     const handleSubmit = async (e) => {
@@ -22,12 +27,12 @@ export default function Auth({ onAuthSuccess }) {
                 localStorage.setItem('loggedUser', JSON.stringify(response.data));
                 onAuthSuccess(response.data);
             } catch (err) {
-                setMessage(err.response?.data?.error || 'Falha na autenticação.');
+                setMessage('E-mail ou senha incorretos.');
             }
         } else {
             try {
                 const userRes = await axios.post('http://localhost:8000/api/users/', {
-                    email, password, is_company: isCompany
+                    email, password, name, cpf, is_company: isCompany
                 });
                 
                 if (!isCompany) {
@@ -38,58 +43,72 @@ export default function Auth({ onAuthSuccess }) {
                         education
                     });
                 }
-                
-                setMessage('Conta criada com sucesso! Faça login.');
+                setMessage('Conta criada com sucesso! Você já pode fazer login.');
                 setIsLogin(true);
             } catch (err) {
-                setMessage('Erro ao registrar conta. Verifique os dados.');
+                
+                const erroReal = err.response?.data ? JSON.stringify(err.response.data) : 'Erro de conexão com o servidor.';
+                setMessage(`Erro do Backend: ${erroReal}`);
             }
         }
     };
 
     return (
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', backgroundColor: '#f1f5f9' }}>
-            <div style={{ backgroundColor: 'white', padding: '40px', borderRadius: '8px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', width: '100%', maxWidth: '450px' }}>
-                <div style={{ display: 'flex', marginBottom: '30px', borderBottom: '2px solid #e2e8f0' }}>
-                    <button onClick={() => setIsLogin(true)} style={{ flex: 1, padding: '10px', border: 'none', background: 'none', fontWeight: 'bold', color: isLogin ? '#3b82f6' : '#64748b', borderBottom: isLogin ? '2px solid #3b82f6' : 'none', cursor: 'pointer' }}>Login</button>
-                    <button onClick={() => setIsLogin(false)} style={{ flex: 1, padding: '10px', border: 'none', background: 'none', fontWeight: 'bold', color: !isLogin ? '#3b82f6' : '#64748b', borderBottom: !isLogin ? '2px solid #3b82f6' : 'none', cursor: 'pointer' }}>Cadastrar-se</button>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', backgroundColor: '#f4f7f6', fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif' }}>
+            <div style={{ backgroundColor: '#fff', padding: '40px', borderRadius: '12px', boxShadow: '0 10px 25px rgba(0,0,0,0.05)', width: '100%', maxWidth: '500px' }}>
+                <h2 style={{ textAlign: 'center', color: '#2c3e50', marginBottom: '30px' }}>Portal de Vagas</h2>
+                
+                <div style={{ display: 'flex', marginBottom: '25px', borderRadius: '8px', overflow: 'hidden', border: '1px solid #e0e6ed' }}>
+                    <button onClick={() => setIsLogin(true)} style={{ flex: 1, padding: '12px', border: 'none', backgroundColor: isLogin ? '#3498db' : '#f8f9fa', color: isLogin ? 'white' : '#7f8c8d', fontWeight: 'bold', cursor: 'pointer', transition: '0.3s' }}>Entrar</button>
+                    <button onClick={() => setIsLogin(false)} style={{ flex: 1, padding: '12px', border: 'none', backgroundColor: !isLogin ? '#3498db' : '#f8f9fa', color: !isLogin ? 'white' : '#7f8c8d', fontWeight: 'bold', cursor: 'pointer', transition: '0.3s' }}>Cadastrar-se</button>
                 </div>
 
-                {message && <div style={{ padding: '10px', backgroundColor: '#fee2e2', color: '#991b1b', borderRadius: '4px', marginBottom: '20px', fontWeight: '500', fontSize: '0.9rem' }}>{message}</div>}
+                {message && <div style={{ padding: '12px', backgroundColor: message.includes('sucesso') ? '#d4edda' : '#f8d7da', color: message.includes('sucesso') ? '#155724' : '#721c24', borderRadius: '6px', marginBottom: '20px', textAlign: 'center', fontWeight: 'bold' }}>{message}</div>}
 
                 <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                    <input type="email" placeholder="E-mail" value={email} onChange={(e) => setEmail(e.target.value)} required style={{ padding: '10px', borderRadius: '4px', border: '1px solid #cbd5e1' }} />
-                    <input type="password" placeholder="Senha" value={password} onChange={(e) => setPassword(e.target.value)} required style={{ padding: '10px', borderRadius: '4px', border: '1px solid #cbd5e1' }} />
-
+                    
                     {!isLogin && (
-                        <>
-                            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.95rem' }}>
-                                <input type="checkbox" checked={isCompany} onChange={(e) => setIsCompany(e.target.checked)} />
-                                Perfil corporativo (Empresa)
+                        <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginBottom: '10px' }}>
+                            <label style={{ cursor: 'pointer', fontWeight: 'bold', color: !isCompany ? '#2980b9' : '#95a5a6' }}>
+                                <input type="radio" checked={!isCompany} onChange={() => setIsCompany(false)} style={{ marginRight: '5px' }}/> Sou Candidato
                             </label>
-
-                            {!isCompany && (
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '10px', paddingLeft: '5px', borderLeft: '3px solid #3b82f6' }}>
-                                    <input type="number" placeholder="Pretensão Salarial (R$)" value={desiredSalary} onChange={(e) => setDesiredSalary(e.target.value)} required style={{ padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e1' }} />
-                                    <textarea placeholder="Resumo de Experiências Profissionais" value={experience} onChange={(e) => setExperience(e.target.value)} required style={{ padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e1', height: '80px', resize: 'none' }} />
-                                    <select value={education} onChange={(e) => setEducation(e.target.value)} style={{ padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e1' }}>
-                                        <option value="fundamental">Fundamental</option>
-                                        <option value="medio">Médio</option>
-                                        <option value="tecnologo">Tecnólogo</option>
-                                        <option value="superior">Superior</option>
-                                        <option value="pos_mba_mestrado">Pós / MBA / Mestrado</option>
-                                        <option value="doutorado">Doutorado</option>
-                                    </select>
-                                </div>
-                            )}
-                        </>
+                            <label style={{ cursor: 'pointer', fontWeight: 'bold', color: isCompany ? '#2980b9' : '#95a5a6' }}>
+                                <input type="radio" checked={isCompany} onChange={() => setIsCompany(true)} style={{ marginRight: '5px' }}/> Sou Empresa
+                            </label>
+                        </div>
                     )}
 
-                    <button type="submit" style={{ backgroundColor: '#3b82f6', color: 'white', border: 'none', padding: '12px', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer', marginTop: '10px' }}>
-                        {isLogin ? 'Entrar' : 'Registrar Conta'}
+                    {!isLogin && <input type="text" placeholder={isCompany ? "Nome da Empresa" : "Nome Completo"} value={name} onChange={(e) => setName(e.target.value)} required style={inputStyle} />}
+                    {!isLogin && <input type="text" placeholder={isCompany ? "CNPJ" : "CPF"} value={cpf} onChange={(e) => setCpf(e.target.value)} required style={inputStyle} />}
+                    
+                    <input type="email" placeholder="E-mail" value={email} onChange={(e) => setEmail(e.target.value)} required style={inputStyle} />
+                    <input type="password" placeholder="Senha" value={password} onChange={(e) => setPassword(e.target.value)} required style={inputStyle} />
+
+                    {!isLogin && !isCompany && (
+                        <div style={{ backgroundColor: '#f8f9fa', padding: '15px', borderRadius: '8px', border: '1px solid #e9ecef', marginTop: '10px' }}>
+                            <h4 style={{ margin: '0 0 15px 0', color: '#34495e' }}>Perfil Profissional</h4>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                <input type="number" placeholder="Pretensão Salarial (R$)" value={desiredSalary} onChange={(e) => setDesiredSalary(e.target.value)} required style={inputStyle} />
+                                <select value={education} onChange={(e) => setEducation(e.target.value)} style={inputStyle}>
+                                    <option value="fundamental">Ensino Fundamental</option>
+                                    <option value="medio">Ensino Médio</option>
+                                    <option value="tecnologo">Tecnólogo</option>
+                                    <option value="superior">Ensino Superior</option>
+                                    <option value="pos_mba_mestrado">Pós / MBA / Mestrado</option>
+                                    <option value="doutorado">Doutorado</option>
+                                </select>
+                                <textarea placeholder="Resumo das suas Experiências" value={experience} onChange={(e) => setExperience(e.target.value)} required style={{...inputStyle, height: '80px', resize: 'none'}} />
+                            </div>
+                        </div>
+                    )}
+
+                    <button type="submit" style={{ backgroundColor: '#2ecc71', color: 'white', border: 'none', padding: '14px', borderRadius: '6px', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer', marginTop: '10px', boxShadow: '0 4px 6px rgba(46, 204, 113, 0.2)' }}>
+                        {isLogin ? 'Entrar na Plataforma' : 'Criar Minha Conta'}
                     </button>
                 </form>
             </div>
         </div>
     );
 }
+
+const inputStyle = { padding: '12px', borderRadius: '6px', border: '1px solid #ced4da', fontSize: '15px', outline: 'none' };
