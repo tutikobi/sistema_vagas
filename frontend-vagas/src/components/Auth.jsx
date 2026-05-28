@@ -10,7 +10,7 @@ export default function Auth({ onAuthSuccess }) {
     const [name, setName] = useState('');
     const [cpf, setCpf] = useState('');
     
-    // Campos do Candidato
+  
     const [desiredSalary, setDesiredSalary] = useState('');
     const [experience, setExperience] = useState('');
     const [education, setEducation] = useState('superior');
